@@ -160,7 +160,7 @@ else:
 
 X,Y = dict_to_array(hog_features)
 X.shape, Y.shape
-Xtr,Xte,Ytr,Yte = train_test_split(X,Y, test_size=.25, random_state=42)
+Xtr,Xte,Ytr,Yte = train_test_split(X,Y, test_size=.20, random_state=2)
 clf = svm.LinearSVC()
 clf.fit(Xtr, Ytr)
 Y_pred = clf.predict(Xte)
@@ -170,7 +170,7 @@ print accuracy_score(Yte, Y_pred)
 
 
 X,Y = dict_to_array(lbp_features)
-Xtr,Xte,Ytr,Yte = train_test_split(X,Y, test_size=.25, random_state=42)
+Xtr,Xte,Ytr,Yte = train_test_split(X,Y, test_size=.25, random_state=2)
 clf = svm.LinearSVC()
 clf.fit(Xtr, Ytr)
 Y_pred = clf.predict(Xte)
@@ -179,7 +179,7 @@ print accuracy_score(Yte, Y_pred)
 
 
 X,Y = get_features_concat(hog_features, lbp_features)
-Xtr,Xte,Ytr,Yte = train_test_split(X,Y, test_size=.25, random_state=42)
+Xtr,Xte,Ytr,Yte = train_test_split(X,Y, test_size=.25, random_state=2)
 clf = svm.LinearSVC()
 print Xtr
 print Ytr	
