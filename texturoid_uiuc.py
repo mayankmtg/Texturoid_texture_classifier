@@ -61,38 +61,38 @@ class HOG_LBP:
 						self.dataset_dict[class_name].append(data_cv2)
 			save(self.dataset_dict, "dataset_loaded_cv2.pck")
 
-	# def hog_feature_extract(self):
-	# 	winSize = (64,64)
-	# 	blockSize = (16,16)
-	# 	blockStride = (8,8)
-	# 	cellSize = (8,8)
-	# 	nbins = 9
-	# 	derivAperture = 1
-	# 	winSigma = 4.
-	# 	histogramNormType = 0
-	# 	L2HysThreshold = 2.0000000000000001e-01
-	# 	gammaCorrection = 0
-	# 	nlevels = 64
-	# 	hog_extractor = cv2.HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins,derivAperture,winSigma,histogramNormType,L2HysThreshold,gammaCorrection,nlevels)
-	# 	hog_features = {}
-	# 	for class_name, objects in self.dataset_dict.iteritems():
-	# 		hog_features[class_name] = []
-	# 		for data_cv2 in objects:
-	# 			hog_features[class_name].append(hog_extractor.compute(data_cv2))
-	# 			print hog_extractor.compute(data_cv2).shape
-	# 	return hog_features
-
 	def hog_feature_extract(self):
+		winSize = (64,64)
+		blockSize = (16,16)
+		blockStride = (8,8)
+		cellSize = (8,8)
+		nbins = 9
+		derivAperture = 1
+		winSigma = 4.
+		histogramNormType = 0
+		L2HysThreshold = 2.0000000000000001e-01
+		gammaCorrection = 0
+		nlevels = 64
+		hog_extractor = cv2.HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins,derivAperture,winSigma,histogramNormType,L2HysThreshold,gammaCorrection,nlevels)
 		hog_features = {}
 		for class_name, objects in self.dataset_dict.iteritems():
 			hog_features[class_name] = []
 			for data_cv2 in objects:
-				hist = hog(data_cv2)
-				hog_features[class_name].append(hist)
-				# print hist.shape
-				# print hist
-				# break
+				hog_features[class_name].append(hog_extractor.compute(data_cv2))
+				# print hog_extractor.compute(data_cv2).shape
 		return hog_features
+
+	# def hog_feature_extract(self):
+	# 	hog_features = {}
+	# 	for class_name, objects in self.dataset_dict.iteritems():
+	# 		hog_features[class_name] = []
+	# 		for data_cv2 in objects:
+	# 			hist = hog(data_cv2)
+	# 			hog_features[class_name].append(hist)
+	# 			# print hist.shape
+	# 			# print hist
+	# 			# break
+	# 	return hog_features
 	
 	def lbp_feature_extract(self, radius=8, n_points=24, eps = 1e-7):
 		# lbp = feature.local_binary_pattern(image, self.numPoints,self.radius, method="uniform")
@@ -115,7 +115,7 @@ def dict_to_array(my_dict):
 	ctr = 0
 	for class_name, class_array in my_dict.iteritems():
 		for i in class_array:
-			X.append(i)
+			X.append(i.ravel())
 			Y.append(ctr)
 		ctr+=1
 	return np.array(X),np.array(Y)
@@ -135,12 +135,14 @@ def get_features_concat(my_dict1, my_dict2):
 
 
 
-load_saved = True
+load_dataset = True
+load_hog = True
+load_lbp = True
 
 dataset_dir = "dataset_uiuc/"
-hog_lbp = HOG_LBP(dataset_dir, load_saved)
+hog_lbp = HOG_LBP(dataset_dir, load_dataset)
 
-if(load_saved):
+if(load_hog):
 	print "Loading HOG Features"
 	hog_features = pickle.load(open('hog_features.pck', 'r'))
 else:
@@ -148,7 +150,7 @@ else:
 	hog_features = hog_lbp.hog_feature_extract()
 	save(hog_features, "hog_features.pck")
 
-if(load_saved):
+if(load_lbp):
 	print "Loading LBP Features"
 	lbp_features = pickle.load(open('lbp_features.pck', 'r'))
 else:
@@ -182,7 +184,7 @@ X,Y = get_features_concat(hog_features, lbp_features)
 Xtr,Xte,Ytr,Yte = train_test_split(X,Y, test_size=.25, random_state=2)
 clf = svm.LinearSVC()
 print Xtr
-print Ytr	
+print Ytr
 print X.shape, Y.shape
 clf.fit(Xtr, Ytr)
 Y_pred = clf.predict(Xte)
